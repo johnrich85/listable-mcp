@@ -1,8 +1,8 @@
 # Listable MCP Server
 
-Let Claude, Cursor, and other AI assistants manage your [Listable](https://app.get-listable.com) directory site through natural conversation.
+Let Claude, Cursor, and other AI assistants manage your [Listable](https://get-listable.com) directory site through natural conversation.
 
-[Listable](https://app.get-listable.com) is a platform for building directory websites — restaurant guides, business directories, travel listings, niche curated sites. Its MCP ([Model Context Protocol](https://modelcontextprotocol.io)) server exposes every site-management operation as a structured tool that AI assistants can call.
+[Listable](https://get-listable.com) is a platform for building directory websites — restaurant guides, business directories, travel listings, niche curated sites. Its MCP ([Model Context Protocol](https://modelcontextprotocol.io)) server exposes every site-management operation as a structured tool that AI assistants can call.
 
 Ask the AI things like:
 
@@ -161,7 +161,7 @@ Every tool call is logged against the project it touched. View the timeline at *
 
 ## Links
 
-- Listable: <https://app.get-listable.com>
+- Listable: <https://get-listable.com>
 - API + MCP docs: <https://app.get-listable.com/my-account/api-docs>
 - Model Context Protocol: <https://modelcontextprotocol.io>
 
