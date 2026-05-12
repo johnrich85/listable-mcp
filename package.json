@@ -32,10 +32,10 @@
   "author": "Listable",
   "homepage": "https://get-listable.com",
   "bugs": {
-    "url": "https://github.com/listable/listable-mcp/issues"
+    "url": "https://github.com/johnrich85/listable-mcp/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/listable/listable-mcp.git"
+    "url": "git+https://github.com/johnrich85/listable-mcp.git"
   }
 }
