@@ -1,0 +1,41 @@
+{
+  "name": "listable-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Listable — let Claude, Cursor, and other AI assistants manage your directory site",
+  "type": "module",
+  "bin": {
+    "listable-mcp": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "listable",
+    "directory",
+    "directory-site",
+    "claude",
+    "cursor",
+    "ai",
+    "anthropic"
+  ],
+  "license": "MIT",
+  "author": "Listable",
+  "homepage": "https://listable.directory",
+  "bugs": {
+    "url": "https://github.com/listable/listable-mcp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/listable/listable-mcp.git"
+  }
+}
