@@ -1,8 +1,8 @@
 # Listable MCP Server
 
-Let Claude, Cursor, and other AI assistants manage your [Listable](https://listable.directory) directory site through natural conversation.
+Let Claude, Cursor, and other AI assistants manage your [Listable](https://app.get-listable.com) directory site through natural conversation.
 
-[Listable](https://listable.directory) is a platform for building directory websites — restaurant guides, business directories, travel listings, niche curated sites. This package is a thin [Model Context Protocol](https://modelcontextprotocol.io) server that connects your AI client to Listable's hosted API, exposing every site-management operation as a structured tool the assistant can call.
+[Listable](https://app.get-listable.com) is a platform for building directory websites — restaurant guides, business directories, travel listings, niche curated sites. Its MCP ([Model Context Protocol](https://modelcontextprotocol.io)) server exposes every site-management operation as a structured tool that AI assistants can call.
 
 Ask the AI things like:
 
@@ -14,7 +14,7 @@ Ask the AI things like:
 
 ## What it can do
 
-The server exposes ~47 tools across these groups:
+~47 tools across these groups:
 
 | Group | Tools |
 |---|---|
@@ -28,38 +28,62 @@ The server exposes ~47 tools across these groups:
 | **Redirects** | full CRUD |
 | **Uploads** | upload images / files for use in listings and pages |
 
-The AI is told to call `get_schema` first to discover your project's custom fields and block types so its edits fit your site's shape. Destructive operations (deletes, full block replacements, URL structure changes, script overwrites) prompt for confirmation before running.
+The AI is told to call `get_schema` first so its edits use the right custom fields and block types. Destructive operations (deletes, full block replacements, URL structure changes, script overwrites) prompt for confirmation before running.
 
-## Prerequisites
+## Two ways to connect
 
-1. A [Listable](https://listable.directory) account on the **Growth** or **Pro** plan
-2. An API key — create one at `https://listable.directory/my-account/api-keys`
-   - Click *Create a new API key*, name it (e.g. "Claude MCP"), and optionally scope it to specific projects
-   - Copy the key — it's only shown once
+| | OAuth (recommended) | Static API key (this package) |
+|---|---|---|
+| **How auth works** | Client opens a browser, you log in to Listable, pick which projects to grant, done | You create a key in the admin, paste it into the client config |
+| **Works with** | Claude.ai web, Claude Code, Cursor, any client supporting HTTP MCP + OAuth discovery | Claude Desktop (no HTTP transport), or anywhere you want a static-token connection |
+| **Setup** | Paste a URL | Install this package + create + paste a key |
 
-You'll paste the key into the client config below.
+If your client supports HTTP MCP transport, skip the shim entirely — see **OAuth setup** below. The npm package (`listable-mcp`) is only needed for stdio-only clients like Claude Desktop.
 
-## Install
+## OAuth setup (no install needed)
+
+The MCP endpoint is:
+
+```
+https://app.get-listable.com/api/v1/external/mcp
+```
+
+When a client connects without a bearer token, the server returns a `401` plus a `WWW-Authenticate` discovery hint pointing at `/.well-known/oauth-protected-resource`. The client follows it, redirects you to log in, asks you to approve scopes (including which projects to grant), and gets a token automatically. Access tokens expire after 1 hour and refresh silently for 1 month.
+
+### Claude.ai (web)
+
+*Settings → Integrations → Add custom integration* → paste:
+
+```
+https://app.get-listable.com/api/v1/external/mcp
+```
+
+Claude.ai bounces you to Listable to log in and pick the projects the integration may access. Revoke any time from the API Keys page in your Listable admin.
 
 ### Claude Code
 
 ```bash
-claude mcp add listable -- npx -y listable-mcp
+claude mcp add --transport http listable https://app.get-listable.com/api/v1/external/mcp
 ```
 
-Then set your API key in the environment:
+Claude Code does the OAuth dance in your browser on first use. Verify with `/mcp` inside a session.
 
-```bash
-export LISTABLE_API_TOKEN="lst_..."
-```
+### Cursor
 
-Or add it inline:
+In *Settings → MCP*, add an HTTP server:
 
-```bash
-claude mcp add listable --env LISTABLE_API_TOKEN=lst_... -- npx -y listable-mcp
-```
+- **Name**: `listable`
+- **URL**: `https://app.get-listable.com/api/v1/external/mcp`
 
-Verify the connection with `/mcp` inside a Claude Code session.
+Cursor will trigger the OAuth flow on first connect.
+
+## Stdio fallback (this npm package)
+
+Use this path for **Claude Desktop** (which doesn't support HTTP MCP yet) or any stdio-only client. You'll need to create an API key first:
+
+1. Open *API Keys* in your Listable admin: <https://app.get-listable.com/my-account/api-keys>
+2. Click *Create a new API key*, name it (e.g. "Claude Desktop"), and optionally scope it to specific projects
+3. Copy the key — it's only shown once
 
 ### Claude Desktop
 
@@ -81,23 +105,9 @@ Open *Settings → Developer → Edit Config* (`claude_desktop_config.json`) and
 
 Fully quit and restart Claude Desktop. Listable's tools appear in the *Search and tools* menu.
 
-### Cursor
+### Other stdio clients
 
-Create or edit `.cursor/mcp.json` in your workspace (or `~/.cursor/mcp.json` globally):
-
-```json
-{
-  "mcpServers": {
-    "listable": {
-      "command": "npx",
-      "args": ["-y", "listable-mcp"],
-      "env": {
-        "LISTABLE_API_TOKEN": "lst_..."
-      }
-    }
-  }
-}
-```
+Any MCP client that launches a subprocess can run `npx -y listable-mcp` and pass `LISTABLE_API_TOKEN` in the environment.
 
 ### Global install (optional)
 
@@ -107,26 +117,14 @@ If you'd rather not rely on `npx` resolution each launch:
 npm install -g listable-mcp
 ```
 
-Then point your client at the `listable-mcp` binary directly instead of `npx -y listable-mcp`.
-
-### Remote HTTP transport (no install)
-
-Clients that support HTTP MCP transport can skip this package entirely and connect to Listable's hosted endpoint directly:
-
-```bash
-claude mcp add --transport http listable \
-  https://listable.directory/api/v1/external/mcp \
-  --header "Authorization: Bearer lst_..."
-```
-
-Claude.ai's web app supports the same endpoint via OAuth — *Settings → Integrations → Add custom integration* → paste `https://listable.directory/api/v1/external/mcp`. No key needed; Claude.ai will bounce you to Listable to log in and pick which projects the integration can access.
+Then point the client at the `listable-mcp` binary directly instead of `npx -y listable-mcp`.
 
 ## Configuration
 
 | Env var | Required | Default | Purpose |
 |---|---|---|---|
-| `LISTABLE_API_TOKEN` | yes | — | Your API key from the API Keys page |
-| `LISTABLE_MCP_URL` | no | `https://listable.directory/api/v1/external/mcp` | Override the upstream endpoint (e.g. for self-hosted Listable or staging) |
+| `LISTABLE_API_TOKEN` | yes | — | API key from <https://app.get-listable.com/my-account/api-keys> |
+| `LISTABLE_MCP_URL` | no | `https://app.get-listable.com/api/v1/external/mcp` | Override the upstream endpoint (self-hosted Listable or staging) |
 
 ## Rate limits
 
@@ -148,21 +146,23 @@ Every tool call is logged against the project it touched. View the timeline at *
 
 ## Revoking access
 
-Go to *API → Keys* in your Listable admin and revoke the key. The AI client will receive `401` errors on its next tool call.
+- **OAuth grants**: appear on the API Keys page alongside manually-created keys. Revoke there.
+- **Static API keys**: revoke from the same API Keys page. The AI client will receive `401` errors on its next call.
 
 ## Troubleshooting
 
-**"Unauthenticated" errors** — Confirm the env var is set in the same shell that launched the client. In Claude Desktop / Cursor, the env block in the config must contain the key.
+**"Unauthenticated" errors (stdio shim)** — Confirm `LISTABLE_API_TOKEN` is set in the same shell or config block that launches the client. In Claude Desktop the `env` map in the JSON config must contain the key.
+
+**OAuth loop / browser doesn't redirect back** — Make sure the client's redirect URL is reachable. Some clients use a localhost callback; cookies or popup blockers can interrupt the flow.
 
 **"Tool not available"** — Restart the client (Claude Desktop requires a full quit and reopen). In Claude Code, run `/mcp` to confirm Listable is connected.
 
-**`403` on specific projects** — Your key is scoped. Create a new key without project scoping (or with the right projects added).
+**`403` on specific projects** — Your token is scoped. OAuth: re-run the approval and select more projects. Static key: create a new one without project scoping.
 
 ## Links
 
-- Listable: <https://listable.directory>
-- MCP server docs: <https://listable.directory/docs/mcp-server>
-- REST API docs: <https://listable.directory/docs/external-api>
+- Listable: <https://app.get-listable.com>
+- API + MCP docs: <https://app.get-listable.com/my-account/api-docs>
 - Model Context Protocol: <https://modelcontextprotocol.io>
 
 ## License

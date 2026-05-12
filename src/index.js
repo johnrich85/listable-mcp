@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-const ENDPOINT = process.env.LISTABLE_MCP_URL || 'https://listable.directory/api/v1/external/mcp';
+const ENDPOINT = process.env.LISTABLE_MCP_URL || 'https://app.get-listable.com/api/v1/external/mcp';
 const TOKEN = process.env.LISTABLE_API_TOKEN;
 
 if (!TOKEN) {
   process.stderr.write(
     'listable-mcp: LISTABLE_API_TOKEN env var is required.\n' +
-    'Create a key at https://listable.directory/my-account/api-keys\n'
+    'Create a key at https://app.get-listable.com/my-account/api-keys\n'
   );
   process.exit(1);
 }

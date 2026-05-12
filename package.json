@@ -4,7 +4,7 @@
   "description": "MCP server for Listable — let Claude, Cursor, and other AI assistants manage your directory site",
   "type": "module",
   "bin": {
-    "listable-mcp": "./src/index.js"
+    "listable-mcp": "src/index.js"
   },
   "files": [
     "src",
@@ -30,7 +30,7 @@
   ],
   "license": "MIT",
   "author": "Listable",
-  "homepage": "https://listable.directory",
+  "homepage": "https://app.get-listable.com",
   "bugs": {
     "url": "https://github.com/listable/listable-mcp/issues"
   },
